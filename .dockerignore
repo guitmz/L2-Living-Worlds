@@ -1,0 +1,13 @@
+.git
+.github
+**/.settings
+**/tests
+**/__pycache__
+**/*.pyc
+fpc data
+
+# The runtime datapack and SQL are bind-mounted by Compose. The Java build only
+# needs the dependency jars from dist/libs.
+L2J_Mobius_CT_0_Interlude github/dist/*
+!L2J_Mobius_CT_0_Interlude github/dist/libs/
+L2J_Mobius_CT_0_Interlude github/dist/libs/*-sources.jar

@@ -157,6 +157,18 @@ See `dist/launcher/README.md` for the full build-and-run details, launcher optio
 the external-database path (running against your own MySQL/XAMPP instead of the bundled
 DB).
 
+### Docker on Linux
+
+The repository also includes a Docker Compose deployment for Linux. It runs MySQL, the
+login server, and the game server as separate services. The `dist/game` and `dist/login`
+trees are mounted from the checkout, so runtime data writes can persist and most
+datapack/configuration edits need only a container restart; Java source changes rebuild
+the image.
+
+See [the Docker deployment guide](docs/docker-deployment.md) for host networking,
+firewall setup, rebuild rules, client `l2.ini` patching, and running Interlude through
+Steam with Proton 9.0.
+
 ---
 
 ## Configuration

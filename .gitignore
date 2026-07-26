@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 *.pyc
+/.env
 /L2J_Mobius_CT_0_Interlude github/.env
 /L2J_Mobius_CT_0_Interlude github/.venv
 

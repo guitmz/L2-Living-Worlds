@@ -1,0 +1,80 @@
+name: l2-interlude
+
+x-server-environment: &server-environment
+  DB_HOST: database
+  DB_NAME: ${DB_NAME:-l2jmobiusinterlude}
+  DB_USER: ${DB_USER:-l2j}
+  DB_PASSWORD: ${DB_PASSWORD:-l2j}
+
+services:
+  database:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-l2jmobiusinterlude}
+      MYSQL_USER: ${DB_USER:-l2j}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-l2j}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-change-this-root-password}
+    volumes:
+      - l2j-database:/var/lib/mysql
+      - type: bind
+        source: ./docker/db-init.sh
+        target: /docker-entrypoint-initdb.d/10-l2j-schema.sh
+        read_only: true
+      - type: bind
+        source: ./L2J_Mobius_CT_0_Interlude github/dist/db_installer/sql
+        target: /l2j-sql
+        read_only: true
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    restart: unless-stopped
+
+  login-server:
+    image: l2-interlude-server:local
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: server
+    environment:
+      <<: *server-environment
+      SERVER_TYPE: login
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "2106:2106"
+    volumes:
+      - type: bind
+        source: ./L2J_Mobius_CT_0_Interlude github/dist/login
+        target: /opt/l2j-dist/login
+    restart: unless-stopped
+
+  game-server:
+    image: l2-interlude-server:local
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: server
+    environment:
+      <<: *server-environment
+      SERVER_TYPE: game
+      LOGIN_HOST: login-server
+      SERVER_ADDRESS: ${SERVER_ADDRESS:-127.0.0.1}
+    depends_on:
+      database:
+        condition: service_healthy
+      login-server:
+        condition: service_started
+    ports:
+      - "7777:7777"
+    volumes:
+      - type: bind
+        source: ./L2J_Mobius_CT_0_Interlude github/dist/game
+        target: /opt/l2j-dist/game
+    restart: unless-stopped
+
+volumes:
+  l2j-database:
