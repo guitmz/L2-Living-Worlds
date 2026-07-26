@@ -166,8 +166,9 @@ datapack/configuration edits need only a container restart; Java source changes 
 the image.
 
 See [the Docker deployment guide](docs/docker-deployment.md) for host networking,
-firewall setup, rebuild rules, client `l2.ini` patching, and running Interlude through
-Steam with Proton 9.0.
+firewall setup, and rebuild rules. Client setup is documented separately in the
+[`l2.ini` patching guide](docs/l2-ini-patching.md) and the
+[Linux Steam/Proton guide](docs/linux-client-steam-proton.md).
 
 ---
 
