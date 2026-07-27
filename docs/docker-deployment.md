@@ -61,6 +61,10 @@ DB_USER=l2j
 DB_PASSWORD=replace-with-a-long-random-password
 DB_ROOT_PASSWORD=replace-with-a-different-long-random-password
 SERVER_ADDRESS=192.168.1.50
+LOGIN_JAVA_XMS=128m
+LOGIN_JAVA_XMX=256m
+GAME_JAVA_XMS=2g
+GAME_JAVA_XMX=4g
 ```
 
 `SERVER_ADDRESS` is the address that the login server advertises to game
@@ -86,6 +90,33 @@ sudo ufw allow 7777/tcp
 ```
 
 Do not expose MySQL port `3306` to the internet.
+
+### JVM memory
+
+The heap sizes for both Java services are controlled through `.env`:
+
+- `GAME_JAVA_XMS` and `GAME_JAVA_XMX` set the game server's initial and maximum
+  heap. The defaults are `2g` and `4g`.
+- `LOGIN_JAVA_XMS` and `LOGIN_JAVA_XMX` set the login server's initial and
+  maximum heap. The defaults are `128m` and `256m`.
+
+For example, to allow the game-server heap to grow to 8 GB:
+
+```dotenv
+GAME_JAVA_XMS=2g
+GAME_JAVA_XMX=8g
+```
+
+Java also uses memory outside the heap for thread stacks, compiled code, direct
+buffers, and garbage-collector metadata. Leave additional RAM available beyond
+`GAME_JAVA_XMX`.
+
+After changing these values, recreate the containers so Compose supplies the
+new environment. An image rebuild is not needed:
+
+```bash
+docker compose up -d --force-recreate login-server game-server
+```
 
 ## Build and start
 

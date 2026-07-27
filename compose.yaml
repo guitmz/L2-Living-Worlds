@@ -41,6 +41,8 @@ services:
     environment:
       <<: *server-environment
       SERVER_TYPE: login
+      JAVA_XMS: ${LOGIN_JAVA_XMS:-128m}
+      JAVA_XMX: ${LOGIN_JAVA_XMX:-256m}
     depends_on:
       database:
         condition: service_healthy
@@ -63,6 +65,8 @@ services:
       SERVER_TYPE: game
       LOGIN_HOST: login-server
       SERVER_ADDRESS: ${SERVER_ADDRESS:-127.0.0.1}
+      JAVA_XMS: ${GAME_JAVA_XMS:-2g}
+      JAVA_XMX: ${GAME_JAVA_XMX:-4g}
     depends_on:
       database:
         condition: service_healthy

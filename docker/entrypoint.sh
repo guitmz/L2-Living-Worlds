@@ -7,6 +7,8 @@ set -eu
 : "${DB_NAME:=l2jmobiusinterlude}"
 : "${DB_USER:=l2j}"
 : "${DB_PASSWORD:=l2j}"
+: "${JAVA_XMS:?JAVA_XMS must be set, for example 2g}"
+: "${JAVA_XMX:?JAVA_XMX must be set, for example 4g}"
 
 case "$SERVER_TYPE" in
   login) source_dir=/opt/l2j-dist/login; server_dir=/opt/l2j/login; jar=LoginServer.jar ;;
@@ -70,4 +72,11 @@ EOF
 fi
 
 cd "$server_dir"
-exec java $(cat java.cfg) -jar "../libs/$jar"
+
+# java.cfg contains upstream heap defaults. Remove only its -Xms/-Xmx flags
+# and append the values supplied by Compose, preserving all other JVM options.
+java_options=$(sed -E \
+  -e 's/(^|[[:space:]])-Xms[^[:space:]]+//g' \
+  -e 's/(^|[[:space:]])-Xmx[^[:space:]]+//g' \
+  java.cfg)
+exec java $java_options "-Xms${JAVA_XMS}" "-Xmx${JAVA_XMX}" -jar "../libs/$jar"
