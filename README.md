@@ -163,7 +163,8 @@ The repository also includes a Docker Compose deployment for Linux. It runs MySQ
 login server, and the game server as separate services. The `dist/game` and `dist/login`
 trees are mounted from the checkout, so runtime data writes can persist and most
 datapack/configuration edits need only a container restart; Java source changes rebuild
-the image.
+the image. Runtime scripts that depend on changed Java APIs also require rebuilding so
+the mounted scripts and compiled server jar remain compatible.
 
 See [the Docker deployment guide](docs/docker-deployment.md) for host networking,
 firewall setup, and rebuild rules. Client setup is documented separately in the

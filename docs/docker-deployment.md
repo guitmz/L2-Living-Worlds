@@ -175,7 +175,7 @@ Login configuration files are located under:
 L2J_Mobius_CT_0_Interlude github/dist/login/config/
 ```
 
-After changing configuration, scripts, XML, HTML, or other files under
+After changing configuration, XML, HTML, or other data-only files under
 `dist/game` or `dist/login`, restart the affected container. No image rebuild
 is required because these files are mounted:
 
@@ -189,6 +189,8 @@ Restart both when both mounted trees changed:
 docker compose restart login-server game-server
 ```
 
+### Java and runtime-script compatibility
+
 Java files under `L2J_Mobius_CT_0_Interlude github/java` are compiled into the
 server jars. Java source changes therefore require rebuilding and recreating
 the server image:
@@ -196,6 +198,36 @@ the server image:
 ```bash
 docker compose up -d --build --force-recreate login-server game-server
 ```
+
+Java files under `dist/game/data/scripts` are compiled dynamically when the
+game server starts. A script-only change can normally be applied with a game
+server restart. However, if that script uses a field, method, class, or other
+API that was added or changed under the main `java` source tree, the mounted
+script and the jar must come from the same source revision. Rebuild the image;
+a restart alone leaves the old jar in place.
+
+Typical symptoms of a stale jar/script mismatch are:
+
+```text
+Failed to execute script list!
+cannot find symbol
+No handler registered for admin command ...
+```
+
+One compilation error in `handlers/MasterHandler.java` can prevent every admin
+handler from registering, even when the individual command files are valid.
+Rebuild and recreate the game server:
+
+```bash
+docker compose build --no-cache game-server
+docker compose up -d --force-recreate game-server
+docker compose logs -f game-server
+```
+
+The `--no-cache` rebuild is useful after a confirmed jar/script mismatch. It is
+not necessary for ordinary data or configuration changes. Do not run
+`docker compose down -v`; rebuilding the server does not require deleting the
+database.
 
 Changes to dependency jars under `dist/libs`, `docker/Dockerfile`, or
 `docker/entrypoint.sh` also require an image rebuild. These operations preserve
